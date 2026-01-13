@@ -1,6 +1,7 @@
 import type { Game } from '../entities/game-types';
 
 export interface IFileSystem {
+  selectDirectory(): Promise<void>;
   scanDirectory(): Promise<string[]>;
   organizeGame(game: Game, m3uContent: string): Promise<void>;
   revertGame(game: Game): Promise<void>;

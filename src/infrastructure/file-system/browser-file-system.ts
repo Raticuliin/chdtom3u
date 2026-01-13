@@ -6,12 +6,18 @@ export const createBrowserFileSystem = (): IFileSystem => {
   const fileHandles: Map<string, FileSystemFileHandle> = new Map();
 
   return {
-    async scanDirectory(): Promise<string[]> {
-      try {
-        rootHandle = await window.showDirectoryPicker({
-          mode: 'readwrite',
-        });
+    async selectDirectory(): Promise<void> {
+      rootHandle = await window.showDirectoryPicker({
+        mode: 'readwrite',
+      });
+    },
 
+    async scanDirectory(): Promise<string[]> {
+      if (!rootHandle) {
+        rootHandle = await window.showDirectoryPicker({ mode: 'readwrite' });
+      }
+
+      try {
         fileHandles.clear();
         const fileNames: string[] = [];
 
@@ -37,7 +43,10 @@ export const createBrowserFileSystem = (): IFileSystem => {
     },
 
     async getFilesInFolder(folderName: string): Promise<string[]> {
-      if (!rootHandle) return [];
+      if (!rootHandle) {
+        rootHandle = await window.showDirectoryPicker({ mode: 'readwrite' });
+      }
+
       try {
         // Accedemos a la subcarpeta que ya existe
         const folderHandle = await rootHandle.getDirectoryHandle(folderName);
@@ -58,7 +67,7 @@ export const createBrowserFileSystem = (): IFileSystem => {
 
     async organizeGame(game: Game, m3uContent: string): Promise<void> {
       if (!rootHandle) {
-        throw new Error('Select a folder first.');
+        rootHandle = await window.showDirectoryPicker({ mode: 'readwrite' });
       }
 
       try {
